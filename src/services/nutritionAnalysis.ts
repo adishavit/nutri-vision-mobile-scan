@@ -67,8 +67,26 @@ export const analyzeNutritionImage = async (imageDataUrl: string): Promise<Nutri
       throw new Error('No content in API response');
     }
 
+    console.log('Raw API response:', content);
+
+    // Extract JSON from markdown code blocks if present
+    let jsonString = content;
+    if (content.includes('```json')) {
+      const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+      if (jsonMatch) {
+        jsonString = jsonMatch[1];
+      }
+    } else if (content.includes('```')) {
+      const codeMatch = content.match(/```\s*([\s\S]*?)\s*```/);
+      if (codeMatch) {
+        jsonString = codeMatch[1];
+      }
+    }
+
+    console.log('Extracted JSON string:', jsonString);
+
     // Parse the JSON response
-    const nutritionData = JSON.parse(content);
+    const nutritionData = JSON.parse(jsonString.trim());
     console.log('Parsed nutrition data:', nutritionData);
     
     return nutritionData;
