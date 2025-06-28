@@ -198,12 +198,8 @@ const Index = () => {
         {capturedImage && !nutritionData && !showApiKeyInput && (
           <Card className="bg-white/10 backdrop-blur-sm border-white/20 mb-6">
             <CardContent className="pt-6">
-              <img 
-                src={capturedImage} 
-                alt="Captured nutrition label" 
-                className="w-full rounded-lg mb-4 shadow-lg"
-              />
-              <div className="flex gap-3">
+              {/* Action buttons at the top */}
+              <div className="flex gap-3 mb-4">
                 <Button 
                   onClick={analyzeImage}
                   disabled={isAnalyzing}
@@ -229,6 +225,13 @@ const Index = () => {
                   Retake
                 </Button>
               </div>
+              
+              {/* Image preview below buttons */}
+              <img 
+                src={capturedImage} 
+                alt="Captured nutrition label" 
+                className="w-full rounded-lg shadow-lg"
+              />
             </CardContent>
           </Card>
         )}
