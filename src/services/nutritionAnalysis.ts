@@ -33,7 +33,7 @@ export const analyzeNutritionImage = async (imageDataUrl: string): Promise<Nutri
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4-vision-preview',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'user',
