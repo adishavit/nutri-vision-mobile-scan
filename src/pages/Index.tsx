@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Camera, Loader2, Calculator, Zap, Key, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -41,18 +40,28 @@ const Index = () => {
     }
   }, []);
 
-  const handleImageCapture = (imageDataUrl: string) => {
-    setCapturedImage(imageDataUrl);
+  const handleImageCapture = async (imageDataUrl: string) => {
+    console.log('Image captured, processing...');
+    // Process the image for better orientation and cropping
+    const { processNutritionLabelImage } = await import('@/utils/imageProcessing');
+    const processedImage = await processNutritionLabelImage(imageDataUrl);
+    
+    setCapturedImage(processedImage);
     setShowCamera(false);
     setShowFileUpload(false);
-    console.log('Image captured, starting analysis...');
+    console.log('Image processed, ready for analysis...');
   };
 
-  const handleFileUpload = (imageDataUrl: string) => {
-    setCapturedImage(imageDataUrl);
+  const handleFileUpload = async (imageDataUrl: string) => {
+    console.log('File uploaded, processing...');
+    // Process the image for better orientation and cropping
+    const { processNutritionLabelImage } = await import('@/utils/imageProcessing');
+    const processedImage = await processNutritionLabelImage(imageDataUrl);
+    
+    setCapturedImage(processedImage);
     setShowCamera(false);
     setShowFileUpload(false);
-    console.log('File uploaded, starting analysis...');
+    console.log('Image processed, ready for analysis...');
   };
 
   const analyzeImage = async () => {
@@ -220,7 +229,7 @@ const Index = () => {
               <div className="space-y-3">
                 <Button 
                   onClick={() => setShowCamera(true)}
-                  className="w-full bg-white text-gray-900 hover:bg-gray-100 font-semibold py-3 border border-gray-300"
+                  className="w-full bg-black/50 text-white hover:bg-black/70 font-semibold py-3 border border-white/30"
                   size="lg"
                 >
                   <Camera className="w-5 h-5 mr-2" />
@@ -228,8 +237,7 @@ const Index = () => {
                 </Button>
                 <Button 
                   onClick={() => setShowFileUpload(true)}
-                  variant="outline"
-                  className="w-full border-white/30 text-white hover:bg-white/20 font-semibold py-3"
+                  className="w-full bg-black/50 text-white hover:bg-black/70 font-semibold py-3 border border-white/30"
                   size="lg"
                 >
                   <Upload className="w-5 h-5 mr-2" />
@@ -249,7 +257,7 @@ const Index = () => {
                 <Button 
                   onClick={analyzeImage}
                   disabled={isAnalyzing}
-                  className="flex-1 bg-white text-gray-900 hover:bg-gray-100 font-semibold border border-gray-300"
+                  className="flex-1 bg-black/50 text-white hover:bg-black/70 font-semibold border border-white/30"
                 >
                   {isAnalyzing ? (
                     <>
@@ -265,8 +273,7 @@ const Index = () => {
                 </Button>
                 <Button 
                   onClick={resetApp}
-                  variant="outline"
-                  className="px-6 border-white/30 text-white hover:bg-white/20"
+                  className="px-6 bg-black/50 text-white hover:bg-black/70 border border-white/30"
                 >
                   Retake
                 </Button>
@@ -289,8 +296,7 @@ const Index = () => {
             <div className="flex justify-center">
               <Button 
                 onClick={resetApp}
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/20 font-semibold"
+                className="bg-black/50 text-white hover:bg-black/70 font-semibold border border-white/30"
                 size="lg"
               >
                 Take Another Photo

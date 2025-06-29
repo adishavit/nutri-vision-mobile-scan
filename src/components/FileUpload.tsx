@@ -46,7 +46,7 @@ export const FileUpload = ({ onUpload, onClose }: FileUploadProps) => {
             onClick={onClose}
             size="icon"
             variant="ghost"
-            className="text-white hover:bg-white/20 border border-white/30"
+            className="text-white hover:bg-white/20 border border-white/30 bg-black/30"
           >
             <X className="w-5 h-5" />
           </Button>
@@ -60,7 +60,7 @@ export const FileUpload = ({ onUpload, onClose }: FileUploadProps) => {
         
         <Button 
           onClick={triggerFileSelect}
-          className="w-full bg-white text-gray-900 hover:bg-gray-100 font-semibold py-3 border border-gray-300"
+          className="w-full bg-black/50 text-white hover:bg-black/70 font-semibold py-3 border border-white/30"
           size="lg"
         >
           <Upload className="w-5 h-5 mr-2" />

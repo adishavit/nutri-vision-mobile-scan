@@ -35,10 +35,10 @@ export const EditableNutritionDisplay = ({ data, image, onDataChange }: Editable
   ];
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 items-start">
-      {/* Image on the left for desktop, top for mobile */}
+    <div className="flex flex-col lg:flex-row gap-6 items-start">
+      {/* Image on the left */}
       {image && (
-        <div className="flex-shrink-0 w-full lg:w-48">
+        <div className="flex-shrink-0 w-full lg:w-1/2 max-w-md">
           <img 
             src={image} 
             alt="Analyzed nutrition label" 
@@ -47,8 +47,8 @@ export const EditableNutritionDisplay = ({ data, image, onDataChange }: Editable
         </div>
       )}
 
-      {/* Nutrition data - full width on mobile, right side on desktop */}
-      <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white flex-1 w-full">
+      {/* Nutrition data to the right */}
+      <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white flex-1 min-w-0">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg">
             <Input
@@ -68,16 +68,16 @@ export const EditableNutritionDisplay = ({ data, image, onDataChange }: Editable
         <CardContent className="pt-0">
           <div className="space-y-3">
             {nutritionFields.map((field) => (
-              <div key={field.key} className="flex items-center gap-2">
-                <Label className="text-white/90 text-sm min-w-[60px] flex-shrink-0">{field.label}</Label>
+              <div key={field.key} className="flex items-center gap-3">
+                <Label className="text-white/90 text-sm w-16 flex-shrink-0">{field.label}</Label>
                 <Input
                   type="number"
                   value={editableData[field.key] || ''}
                   onChange={(e) => handleValueChange(field.key, parseFloat(e.target.value) || 0)}
-                  className="bg-white/10 border-white/30 text-white placeholder:text-white/50 flex-1 h-8 min-w-[80px]"
+                  className="bg-white/10 border-white/30 text-white placeholder:text-white/50 flex-1 h-8 min-w-0"
                   step="0.1"
                 />
-                <span className="text-white/60 text-xs min-w-[24px] flex-shrink-0">{field.unit}</span>
+                <span className="text-white/60 text-xs w-8 flex-shrink-0 text-right">{field.unit}</span>
               </div>
             ))}
           </div>
