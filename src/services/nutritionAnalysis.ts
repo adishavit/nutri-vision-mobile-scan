@@ -1,9 +1,10 @@
 
 import { NutritionData } from '@/pages/Index';
 
-const OPENAI_API_KEY = localStorage.getItem('openai_api_key');
-
 export const analyzeNutritionImage = async (imageDataUrl: string): Promise<NutritionData> => {
+  // Get API key from localStorage at runtime
+  const OPENAI_API_KEY = localStorage.getItem('openai_api_key');
+  
   // Check if API key exists
   if (!OPENAI_API_KEY) {
     // For demo purposes, return mock data

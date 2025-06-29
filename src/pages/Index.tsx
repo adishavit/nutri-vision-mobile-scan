@@ -1,12 +1,13 @@
 
-import { useState, useRef } from 'react';
-import { Camera, Loader2, Calculator, Zap, Key } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Camera, Loader2, Calculator, Zap, Key, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CameraCapture } from '@/components/CameraCapture';
-import { NutritionDisplay } from '@/components/NutritionDisplay';
+import { FileUpload } from '@/components/FileUpload';
+import { EditableNutritionDisplay } from '@/components/EditableNutritionDisplay';
 import { KetoCalculator } from '@/components/KetoCalculator';
 import { analyzeNutritionImage, promptForApiKey } from '@/services/nutritionAnalysis';
 import { toast } from '@/hooks/use-toast';
@@ -28,13 +29,30 @@ const Index = () => {
   const [nutritionData, setNutritionData] = useState<NutritionData | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const [showFileUpload, setShowFileUpload] = useState(false);
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
-  const [apiKey, setApiKey] = useState(localStorage.getItem('openai_api_key') || '');
+  const [apiKey, setApiKey] = useState('');
+
+  // Load API key from localStorage on component mount
+  useEffect(() => {
+    const savedApiKey = localStorage.getItem('openai_api_key');
+    if (savedApiKey) {
+      setApiKey(savedApiKey);
+    }
+  }, []);
 
   const handleImageCapture = (imageDataUrl: string) => {
     setCapturedImage(imageDataUrl);
     setShowCamera(false);
+    setShowFileUpload(false);
     console.log('Image captured, starting analysis...');
+  };
+
+  const handleFileUpload = (imageDataUrl: string) => {
+    setCapturedImage(imageDataUrl);
+    setShowCamera(false);
+    setShowFileUpload(false);
+    console.log('File uploaded, starting analysis...');
   };
 
   const analyzeImage = async () => {
@@ -92,11 +110,16 @@ const Index = () => {
     setCapturedImage(null);
     setNutritionData(null);
     setShowCamera(false);
+    setShowFileUpload(false);
+  };
+
+  const handleNutritionDataChange = (data: NutritionData) => {
+    setNutritionData(data);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-400 via-teal-500 to-blue-600">
-      <div className="container mx-auto px-4 py-6 pb-32 max-w-md">
+      <div className="container mx-auto px-4 py-6 pb-32 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-4">
@@ -113,13 +136,13 @@ const Index = () => {
             className="mt-2 text-white/80 hover:text-white hover:bg-white/10"
           >
             <Key className="w-4 h-4 mr-2" />
-            {localStorage.getItem('openai_api_key') ? 'API Key Set' : 'Set API Key'}
+            {apiKey ? 'API Key Set' : 'Set API Key'}
           </Button>
         </div>
 
         {/* API Key Input */}
         {showApiKeyInput && (
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white mb-6">
+          <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white mb-6 max-w-md mx-auto">
             <CardHeader>
               <CardTitle className="text-lg">OpenAI API Key</CardTitle>
               <p className="text-white/80 text-sm">
@@ -167,36 +190,59 @@ const Index = () => {
 
         {/* Camera Component */}
         {showCamera && (
-          <CameraCapture
-            onCapture={handleImageCapture}
-            onClose={() => setShowCamera(false)}
-          />
+          <div className="max-w-md mx-auto">
+            <CameraCapture
+              onCapture={handleImageCapture}
+              onClose={() => setShowCamera(false)}
+            />
+          </div>
+        )}
+
+        {/* File Upload Component */}
+        {showFileUpload && (
+          <div className="max-w-md mx-auto">
+            <FileUpload
+              onUpload={handleFileUpload}
+              onClose={() => setShowFileUpload(false)}
+            />
+          </div>
         )}
 
         {/* Main Content */}
-        {!capturedImage && !showCamera && !showApiKeyInput && (
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+        {!capturedImage && !showCamera && !showFileUpload && !showApiKeyInput && (
+          <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white max-w-md mx-auto">
             <CardContent className="pt-8 pb-8 text-center">
               <Camera className="w-20 h-20 mx-auto mb-6 text-white/80" />
               <h2 className="text-xl font-semibold mb-4">Ready to Scan</h2>
               <p className="text-white/80 mb-6">
-                Take a photo of any nutrition label to get instant analysis and keto calculations
+                Take a photo or upload an image of any nutrition label
               </p>
-              <Button 
-                onClick={() => setShowCamera(true)}
-                className="w-full bg-white text-gray-900 hover:bg-white/90 font-semibold py-3"
-                size="lg"
-              >
-                <Camera className="w-5 h-5 mr-2" />
-                Open Camera
-              </Button>
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => setShowCamera(true)}
+                  className="w-full bg-white text-gray-900 hover:bg-white/90 font-semibold py-3"
+                  size="lg"
+                >
+                  <Camera className="w-5 h-5 mr-2" />
+                  Open Camera
+                </Button>
+                <Button 
+                  onClick={() => setShowFileUpload(true)}
+                  variant="outline"
+                  className="w-full border-white/30 text-white hover:bg-white/10 font-semibold py-3"
+                  size="lg"
+                >
+                  <Upload className="w-5 h-5 mr-2" />
+                  Upload Image
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
 
         {/* Captured Image Preview */}
         {capturedImage && !nutritionData && !showApiKeyInput && (
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20 mb-6">
+          <Card className="bg-white/10 backdrop-blur-sm border-white/20 mb-6 max-w-md mx-auto">
             <CardContent className="pt-6">
               {/* Action buttons at the top */}
               <div className="flex gap-3 mb-4">
@@ -239,20 +285,24 @@ const Index = () => {
         {/* Results */}
         {nutritionData && !showApiKeyInput && (
           <div className="space-y-6">
-            <NutritionDisplay 
+            {/* Take Another Photo button at the top */}
+            <div className="flex justify-center">
+              <Button 
+                onClick={resetApp}
+                variant="outline"
+                className="border-white/30 text-white hover:bg-white/10 font-semibold"
+                size="lg"
+              >
+                Take Another Photo
+              </Button>
+            </div>
+            
+            <EditableNutritionDisplay 
               data={nutritionData}
               image={capturedImage}
+              onDataChange={handleNutritionDataChange}
             />
             <KetoCalculator nutritionData={nutritionData} />
-            
-            <Button 
-              onClick={resetApp}
-              variant="outline"
-              className="w-full border-white/30 text-white hover:bg-white/10 font-semibold"
-              size="lg"
-            >
-              Scan Another Item
-            </Button>
           </div>
         )}
       </div>

@@ -93,9 +93,9 @@ export const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
             className="w-full h-full object-cover"
           />
           
-          {/* Camera overlay */}
+          {/* Camera overlay - vertical label frame */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="border-2 border-white/50 rounded-lg w-4/5 h-3/5 flex items-center justify-center">
+            <div className="border-2 border-white/50 rounded-lg w-3/5 h-4/5 flex items-center justify-center">
               <div className="text-white/70 text-center">
                 <Camera className="w-8 h-8 mx-auto mb-2" />
                 <p className="text-sm">Position nutrition label here</p>
