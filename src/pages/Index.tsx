@@ -133,7 +133,7 @@ const Index = () => {
             onClick={() => setShowApiKeyInput(!showApiKeyInput)}
             variant="ghost"
             size="sm"
-            className="mt-2 text-white/80 hover:text-white hover:bg-white/10"
+            className="mt-2 text-white hover:text-white hover:bg-white/20 border border-white/30"
           >
             <Key className="w-4 h-4 mr-2" />
             {apiKey ? 'API Key Set' : 'Set API Key'}
@@ -170,13 +170,13 @@ const Index = () => {
                 />
               </div>
               <div className="flex gap-3">
-                <Button onClick={saveApiKey} className="flex-1 bg-white text-gray-900 hover:bg-white/90">
+                <Button onClick={saveApiKey} className="flex-1 bg-white text-gray-900 hover:bg-gray-100 border border-gray-300">
                   Save Key
                 </Button>
                 <Button 
                   onClick={() => setShowApiKeyInput(false)}
                   variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10"
+                  className="border-white/30 text-white hover:bg-white/20"
                 >
                   Cancel
                 </Button>
@@ -220,7 +220,7 @@ const Index = () => {
               <div className="space-y-3">
                 <Button 
                   onClick={() => setShowCamera(true)}
-                  className="w-full bg-white text-gray-900 hover:bg-white/90 font-semibold py-3"
+                  className="w-full bg-white text-gray-900 hover:bg-gray-100 font-semibold py-3 border border-gray-300"
                   size="lg"
                 >
                   <Camera className="w-5 h-5 mr-2" />
@@ -229,7 +229,7 @@ const Index = () => {
                 <Button 
                   onClick={() => setShowFileUpload(true)}
                   variant="outline"
-                  className="w-full border-white/30 text-white hover:bg-white/10 font-semibold py-3"
+                  className="w-full border-white/30 text-white hover:bg-white/20 font-semibold py-3"
                   size="lg"
                 >
                   <Upload className="w-5 h-5 mr-2" />
@@ -249,7 +249,7 @@ const Index = () => {
                 <Button 
                   onClick={analyzeImage}
                   disabled={isAnalyzing}
-                  className="flex-1 bg-white text-gray-900 hover:bg-white/90 font-semibold"
+                  className="flex-1 bg-white text-gray-900 hover:bg-gray-100 font-semibold border border-gray-300"
                 >
                   {isAnalyzing ? (
                     <>
@@ -266,7 +266,7 @@ const Index = () => {
                 <Button 
                   onClick={resetApp}
                   variant="outline"
-                  className="px-6 border-white/30 text-white hover:bg-white/10"
+                  className="px-6 border-white/30 text-white hover:bg-white/20"
                 >
                   Retake
                 </Button>
@@ -290,7 +290,7 @@ const Index = () => {
               <Button 
                 onClick={resetApp}
                 variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 font-semibold"
+                className="border-white/30 text-white hover:bg-white/20 font-semibold"
                 size="lg"
               >
                 Take Another Photo

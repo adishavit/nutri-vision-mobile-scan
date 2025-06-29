@@ -1,5 +1,5 @@
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Upload, X } from 'lucide-react';
@@ -12,6 +12,11 @@ interface FileUploadProps {
 export const FileUpload = ({ onUpload, onClose }: FileUploadProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Auto-trigger file selection when component mounts
+  useEffect(() => {
+    fileInputRef.current?.click();
+  }, []);
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
@@ -23,6 +28,9 @@ export const FileUpload = ({ onUpload, onClose }: FileUploadProps) => {
         }
       };
       reader.readAsDataURL(file);
+    } else {
+      // If no valid file selected, close the upload dialog
+      onClose();
     }
   };
 
@@ -38,7 +46,7 @@ export const FileUpload = ({ onUpload, onClose }: FileUploadProps) => {
             onClick={onClose}
             size="icon"
             variant="ghost"
-            className="text-white hover:bg-white/10"
+            className="text-white hover:bg-white/20 border border-white/30"
           >
             <X className="w-5 h-5" />
           </Button>
@@ -52,7 +60,7 @@ export const FileUpload = ({ onUpload, onClose }: FileUploadProps) => {
         
         <Button 
           onClick={triggerFileSelect}
-          className="w-full bg-white text-gray-900 hover:bg-white/90 font-semibold py-3"
+          className="w-full bg-white text-gray-900 hover:bg-gray-100 font-semibold py-3 border border-gray-300"
           size="lg"
         >
           <Upload className="w-5 h-5 mr-2" />

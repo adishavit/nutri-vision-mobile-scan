@@ -26,9 +26,11 @@ export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
   const proteinPercentage = (protein / totalMacros) * 100;
   const carbPercentage = (netCarbs / totalMacros) * 100;
   
-  // Determine keto compatibility
+  // Determine keto compatibility using the correct formula: 3*(Fat) >= 2*(protein + (carbs - fiber))
   const getKetoStatus = () => {
-    if (fatPercentage >= 70 && carbPercentage <= 10) {
+    const ketoFormula = 3 * fat >= 2 * (protein + netCarbs);
+    
+    if (ketoFormula && carbPercentage <= 10) {
       return { status: 'Keto Friendly', color: 'bg-green-500', icon: TrendingUp };
     } else if (fatPercentage >= 50 && carbPercentage <= 20) {
       return { status: 'Low Carb', color: 'bg-yellow-500', icon: Minus };
@@ -109,6 +111,17 @@ export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
           <div className="text-white/80 text-sm">Net Carbs</div>
           <div className="text-white/60 text-xs">
             ({carbs}g total - {fiber}g fiber)
+          </div>
+        </div>
+
+        {/* Keto Formula Display */}
+        <div className="bg-white/10 rounded-lg p-3 text-center">
+          <div className="text-white/80 text-xs mb-1">Keto Formula:</div>
+          <div className="text-sm font-mono">
+            3×{fat}g ≥ 2×({protein}g + {netCarbs}g)
+          </div>
+          <div className="text-sm font-mono">
+            {(3 * fat).toFixed(1)} ≥ {(2 * (protein + netCarbs)).toFixed(1)}
           </div>
         </div>
 
