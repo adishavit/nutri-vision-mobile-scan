@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NutritionData } from '@/types/nutrition';
 
@@ -9,12 +10,12 @@ interface NutritionDisplayProps {
 export const NutritionDisplay = ({ data, image }: NutritionDisplayProps) => {
   const nutritionItems = [
     { label: 'Calories', value: data.calories, unit: 'kcal' },
-    { label: 'Protein', value: data.protein, unit: 'g' },
-    { label: 'Carbs', value: data.carbs, unit: 'g' },
     { label: 'Fat', value: data.fat, unit: 'g' },
-    { label: 'Fiber', value: data.fiber, unit: 'g' },
-    { label: 'Sugar', value: data.sugar, unit: 'g' },
     { label: 'Sodium', value: data.sodium, unit: 'mg' },
+    { label: 'Carbs', value: data.carbs, unit: 'g' },
+    { label: 'Sugar', value: data.sugar, unit: 'g' },
+    { label: 'Fiber', value: data.fiber, unit: 'g' },
+    { label: 'Protein', value: data.protein, unit: 'g' },
   ];
 
   return (

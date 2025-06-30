@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -25,12 +26,12 @@ export const EditableNutritionDisplay = ({ data, image, onDataChange }: Editable
 
   const nutritionFields = [
     { key: 'calories' as keyof NutritionData, label: 'Calories', unit: 'kcal' },
-    { key: 'protein' as keyof NutritionData, label: 'Protein', unit: 'g' },
-    { key: 'carbs' as keyof NutritionData, label: 'Carbs', unit: 'g' },
     { key: 'fat' as keyof NutritionData, label: 'Fat', unit: 'g' },
-    { key: 'fiber' as keyof NutritionData, label: 'Fiber', unit: 'g' },
-    { key: 'sugar' as keyof NutritionData, label: 'Sugar', unit: 'g' },
     { key: 'sodium' as keyof NutritionData, label: 'Sodium', unit: 'mg' },
+    { key: 'carbs' as keyof NutritionData, label: 'Carbs', unit: 'g' },
+    { key: 'sugar' as keyof NutritionData, label: 'Sugar', unit: 'g' },
+    { key: 'fiber' as keyof NutritionData, label: 'Fiber', unit: 'g' },
+    { key: 'protein' as keyof NutritionData, label: 'Protein', unit: 'g' },
   ];
 
   return (
