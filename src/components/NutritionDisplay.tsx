@@ -1,6 +1,5 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { NutritionData } from '@/pages/Index';
+import { NutritionData } from '@/types/nutrition';
 
 interface NutritionDisplayProps {
   data: NutritionData;
