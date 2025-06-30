@@ -1,7 +1,6 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { NutritionData } from '@/pages/Index';
+import { NutritionData } from '@/types/nutrition';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface KetoCalculatorProps {

@@ -1,0 +1,107 @@
+
+import { useState, useEffect } from 'react';
+import { NutritionData } from '@/types/nutrition';
+import { analyzeNutritionImage } from '@/services/nutritionAnalysis';
+import { processNutritionLabelImage } from '@/utils/imageProcessing';
+import { toast } from '@/hooks/use-toast';
+
+export const useNutritionScanner = () => {
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [nutritionData, setNutritionData] = useState<NutritionData | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [showFileUpload, setShowFileUpload] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+
+  // Load API key from localStorage on component mount
+  useEffect(() => {
+    const savedApiKey = localStorage.getItem('openai_api_key');
+    if (savedApiKey) {
+      setApiKey(savedApiKey);
+    }
+  }, []);
+
+  const handleImageCapture = async (imageDataUrl: string) => {
+    console.log('Image captured, processing...');
+    const processedImage = await processNutritionLabelImage(imageDataUrl);
+    
+    setCapturedImage(processedImage);
+    setShowCamera(false);
+    setShowFileUpload(false);
+    console.log('Image processed, ready for analysis...');
+  };
+
+  const handleFileUpload = async (imageDataUrl: string) => {
+    console.log('File uploaded, processing...');
+    const processedImage = await processNutritionLabelImage(imageDataUrl);
+    
+    setCapturedImage(processedImage);
+    setShowCamera(false);
+    setShowFileUpload(false);
+    console.log('Image processed, ready for analysis...');
+  };
+
+  const analyzeImage = async () => {
+    if (!capturedImage) return;
+
+    if (!localStorage.getItem('openai_api_key')) {
+      toast({
+        title: "API Key Required",
+        description: "Using demo data instead. Add your OpenAI API key for real analysis.",
+      });
+    }
+
+    setIsAnalyzing(true);
+    try {
+      console.log('Analyzing nutrition information...');
+      const data = await analyzeNutritionImage(capturedImage);
+      setNutritionData(data);
+      console.log('Analysis complete:', data);
+      
+      const isDemo = !localStorage.getItem('openai_api_key');
+      toast({
+        title: isDemo ? "Demo Analysis Complete!" : "Analysis Complete!",
+        description: isDemo 
+          ? "Showing demo data. Add your OpenAI API key for real analysis."
+          : "Nutritional information has been extracted from your image.",
+      });
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      toast({
+        title: "Analysis Failed",
+        description: "Please try again with a clearer image of the nutrition label.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const resetApp = () => {
+    setCapturedImage(null);
+    setNutritionData(null);
+    setShowCamera(false);
+    setShowFileUpload(false);
+  };
+
+  const handleNutritionDataChange = (data: NutritionData) => {
+    setNutritionData(data);
+  };
+
+  return {
+    capturedImage,
+    nutritionData,
+    isAnalyzing,
+    showCamera,
+    showFileUpload,
+    apiKey,
+    setShowCamera,
+    setShowFileUpload,
+    setApiKey,
+    handleImageCapture,
+    handleFileUpload,
+    analyzeImage,
+    resetApp,
+    handleNutritionDataChange,
+  };
+};

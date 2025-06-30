@@ -1,5 +1,4 @@
-
-import { NutritionData } from '@/pages/Index';
+import { NutritionData } from '@/types/nutrition';
 
 export const analyzeNutritionImage = async (imageDataUrl: string): Promise<NutritionData> => {
   // Get API key from localStorage at runtime
