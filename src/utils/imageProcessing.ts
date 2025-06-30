@@ -6,40 +6,45 @@ export const processNutritionLabelImage = async (imageDataUrl: string): Promise<
     const img = new Image();
     
     img.onload = () => {
-      // Set canvas size to match image
-      canvas.width = img.width;
-      canvas.height = img.height;
+      // Check if we have a detected orientation from OpenAI
+      const detectedOrientation = localStorage.getItem('detected_orientation');
+      
+      // Set canvas size based on rotation
+      if (detectedOrientation === 'rotated_90' || detectedOrientation === 'rotated_270') {
+        canvas.width = img.height;
+        canvas.height = img.width;
+      } else {
+        canvas.width = img.width;
+        canvas.height = img.height;
+      }
       
       if (ctx) {
         // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // For now, just draw the image as-is
-        // In a real implementation, you would:
-        // 1. Detect the nutrition label orientation
-        // 2. Rotate if needed (90°, 180°, 270°)
-        // 3. Crop to focus on the nutrition label area
-        // 4. Enhance contrast/brightness if needed
+        // Apply rotation based on detected orientation
+        ctx.translate(canvas.width / 2, canvas.height / 2);
         
-        // Simple rotation detection based on aspect ratio
-        const aspectRatio = img.width / img.height;
-        
-        if (aspectRatio > 1.5) {
-          // Likely sideways, rotate 90 degrees
-          canvas.width = img.height;
-          canvas.height = img.width;
-          ctx.translate(canvas.width / 2, canvas.height / 2);
-          ctx.rotate(Math.PI / 2);
-          ctx.drawImage(img, -img.width / 2, -img.height / 2);
-        } else if (aspectRatio < 0.7) {
-          // Likely upside down or needs rotation
-          ctx.translate(canvas.width / 2, canvas.height / 2);
-          ctx.rotate(Math.PI);
-          ctx.drawImage(img, -img.width / 2, -img.height / 2);
-        } else {
-          // Normal orientation
-          ctx.drawImage(img, 0, 0);
+        switch (detectedOrientation) {
+          case 'rotated_90':
+            ctx.rotate(Math.PI / 2);
+            break;
+          case 'rotated_180':
+            ctx.rotate(Math.PI);
+            break;
+          case 'rotated_270':
+            ctx.rotate(-Math.PI / 2);
+            break;
+          case 'upright':
+          default:
+            // No rotation needed
+            break;
         }
+        
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        
+        // Clean up the stored orientation
+        localStorage.removeItem('detected_orientation');
       }
       
       // Return processed image

@@ -13,9 +13,18 @@ interface EditableNutritionDisplayProps {
 
 export const EditableNutritionDisplay = ({ data, image, onDataChange }: EditableNutritionDisplayProps) => {
   const [editableData, setEditableData] = useState<NutritionData>(data);
+  const [stringValues, setStringValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setEditableData(data);
+    // Initialize string values from data
+    const newStringValues: Record<string, string> = {};
+    const nutritionFields = ['calories', 'fat', 'sodium', 'carbs', 'sugar', 'fiber', 'protein'];
+    nutritionFields.forEach(field => {
+      const value = data[field as keyof NutritionData];
+      newStringValues[field] = value !== undefined ? value.toString() : '';
+    });
+    setStringValues(newStringValues);
   }, [data]);
 
   const handleValueChange = (field: keyof NutritionData, value: string | number) => {
@@ -24,14 +33,23 @@ export const EditableNutritionDisplay = ({ data, image, onDataChange }: Editable
     onDataChange(newData);
   };
 
+  const handleNumericValueChange = (field: string, stringValue: string) => {
+    // Store the string value to preserve leading zeros
+    setStringValues(prev => ({ ...prev, [field]: stringValue }));
+    
+    // Convert to number for the data object
+    const numericValue = stringValue === '' ? 0 : parseFloat(stringValue) || 0;
+    handleValueChange(field as keyof NutritionData, numericValue);
+  };
+
   const nutritionFields = [
-    { key: 'calories' as keyof NutritionData, label: 'Calories', unit: 'kcal' },
-    { key: 'fat' as keyof NutritionData, label: 'Fat', unit: 'g' },
-    { key: 'sodium' as keyof NutritionData, label: 'Sodium', unit: 'mg' },
-    { key: 'carbs' as keyof NutritionData, label: 'Carbs', unit: 'g' },
-    { key: 'sugar' as keyof NutritionData, label: 'Sugar', unit: 'g' },
-    { key: 'fiber' as keyof NutritionData, label: 'Fiber', unit: 'g' },
-    { key: 'protein' as keyof NutritionData, label: 'Protein', unit: 'g' },
+    { key: 'calories', label: 'Calories', unit: 'kcal' },
+    { key: 'fat', label: 'Fat', unit: 'g' },
+    { key: 'sodium', label: 'Sodium', unit: 'mg' },
+    { key: 'carbs', label: 'Carbs', unit: 'g' },
+    { key: 'sugar', label: 'Sugar', unit: 'g' },
+    { key: 'fiber', label: 'Fiber', unit: 'g' },
+    { key: 'protein', label: 'Protein', unit: 'g' },
   ];
 
   return (
@@ -71,11 +89,11 @@ export const EditableNutritionDisplay = ({ data, image, onDataChange }: Editable
               <div key={field.key} className="flex items-center gap-3">
                 <Label className="text-white/90 text-sm w-16 flex-shrink-0">{field.label}</Label>
                 <Input
-                  type="number"
-                  value={editableData[field.key] || ''}
-                  onChange={(e) => handleValueChange(field.key, parseFloat(e.target.value) || 0)}
+                  type="text"
+                  value={stringValues[field.key] || ''}
+                  onChange={(e) => handleNumericValueChange(field.key, e.target.value)}
                   className="bg-white/10 border-white/30 text-white placeholder:text-white/50 flex-1 h-8 min-w-0"
-                  step="0.1"
+                  pattern="[0-9]*\.?[0-9]*"
                 />
                 <span className="text-white/60 text-xs w-8 flex-shrink-0 text-right">{field.unit}</span>
               </div>
