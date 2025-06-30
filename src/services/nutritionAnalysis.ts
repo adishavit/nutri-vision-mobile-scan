@@ -10,7 +10,7 @@ export const analyzeNutritionImage = async (imageDataUrl: string): Promise<Nutri
   const apiKey = localStorage.getItem('openai_api_key');
   
   if (!apiKey) {
-    throw new Error('API key is required for nutrition analysis');
+    throw new Error('OpenAI API key is required. Please set your API key in the settings.');
   }
 
   console.log('Analyzing nutrition information...');
@@ -71,6 +71,9 @@ Important notes:
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Invalid API key. Please check your OpenAI API key.');
+      }
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
@@ -102,6 +105,7 @@ Important notes:
       // Store the orientation for the image processing utility
       if (analysisResult.orientation) {
         localStorage.setItem('detected_orientation', analysisResult.orientation);
+        console.log('Stored orientation:', analysisResult.orientation);
       }
       
       return analysisResult.nutritionData || analysisResult as NutritionData;

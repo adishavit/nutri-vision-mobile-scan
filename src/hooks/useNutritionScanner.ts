@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { NutritionData } from '@/types/nutrition';
 import { analyzeNutritionImage } from '@/services/nutritionAnalysis';
@@ -44,13 +43,6 @@ export const useNutritionScanner = () => {
   const analyzeImage = async () => {
     if (!capturedImage) return;
 
-    if (!localStorage.getItem('openai_api_key')) {
-      toast({
-        title: "API Key Required",
-        description: "Using demo data instead. Add your OpenAI API key for real analysis.",
-      });
-    }
-
     setIsAnalyzing(true);
     try {
       console.log('Analyzing nutrition information...');
@@ -58,18 +50,17 @@ export const useNutritionScanner = () => {
       setNutritionData(data);
       console.log('Analysis complete:', data);
       
-      const isDemo = !localStorage.getItem('openai_api_key');
       toast({
-        title: isDemo ? "Demo Analysis Complete!" : "Analysis Complete!",
-        description: isDemo 
-          ? "Showing demo data. Add your OpenAI API key for real analysis."
-          : "Nutritional information has been extracted from your image.",
+        title: "Analysis Complete!",
+        description: "Nutritional information has been extracted from your image.",
       });
     } catch (error) {
       console.error('Analysis failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      
       toast({
         title: "Analysis Failed",
-        description: "Please try again with a clearer image of the nutrition label.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
