@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { NutritionData } from '@/types/nutrition';
 import { useKetoMath } from '@/hooks/useKetoMath';
-import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
 
 interface KetoCalculatorProps {
   nutritionData: NutritionData;
@@ -10,6 +12,7 @@ interface KetoCalculatorProps {
 
 export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
   const ketoMath = useKetoMath(nutritionData);
+  const [microsOpen, setMicrosOpen] = useState(false);
   
   if (!ketoMath) {
     return (
@@ -30,8 +33,15 @@ export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
     );
   }
   
-  const { per100g, verdict, calorieMismatch, originalKcal100 } = ketoMath;
+  const { per100g, verdict, calorieMismatch, originalKcal100, giConfidence, ketoScore, microsPer100g, warnings } = ketoMath;
   const StatusIcon = verdict.ketoOk ? CheckCircle : XCircle;
+
+  // GI confidence badge color
+  const getGiConfidenceColor = (confidence: string) => {
+    if (confidence === 'direct' || confidence === 'table') return 'bg-green-500';
+    if (confidence === 'heuristic-0.9') return 'bg-amber-500';
+    return 'bg-gray-500';
+  };
 
   return (
     <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
@@ -42,12 +52,38 @@ export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* KetoScore Dial */}
+        <div className="flex justify-center">
+          <div className="relative w-24 h-24">
+            <div className="keto-score-dial" style={{'--score': ketoScore} as React.CSSProperties}>
+              <div className="keto-score-inner">
+                <span className="text-lg font-bold">{Math.round(ketoScore)}</span>
+                <span className="text-xs">Score</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Keto Status Badge */}
         <div className="flex justify-center">
           <Badge className={`${verdict.ketoOk ? 'bg-green-500' : 'bg-red-500'} text-white px-4 py-2 text-sm font-semibold`}>
             {verdict.ketoOk ? 'Keto Friendly' : 'Not Keto Friendly'}
           </Badge>
         </div>
+
+        {/* Warnings */}
+        {warnings.length > 0 && (
+          <div className="space-y-1">
+            {warnings.map((warning, index) => (
+              <div key={index} className="bg-red-500/20 border border-red-500/50 rounded-lg p-2">
+                <div className="flex items-center gap-2 text-red-300">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span className="text-sm">{warning}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Per 100g Table */}
         <div className="space-y-3">
@@ -62,11 +98,40 @@ export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
               <div>Net Carbs: {per100g.netCarb100.toFixed(1)}g</div>
               <div>Calories: {per100g.kcal100.toFixed(0)} kcal</div>
               {per100g.sa100 > 0 && <div>Sugar Alcohol: {per100g.sa100.toFixed(1)}g</div>}
-              <div>GI: {per100g.gi}</div>
+              {per100g.addedSugar100 > 0 && <div>Added Sugar: {per100g.addedSugar100.toFixed(1)}g</div>}
+              <div>Carb %: {per100g.pctCarb.toFixed(1)}%</div>
+              <div>Sat Fat %: {(per100g.satRatio * 100).toFixed(1)}%</div>
+              <div className="flex items-center gap-1">
+                GI: {per100g.gi}
+                <Badge className={`${getGiConfidenceColor(giConfidence)} text-white text-xs px-1 py-0`}>
+                  {giConfidence.replace('heuristic-', 'est ')}
+                </Badge>
+              </div>
               <div>GL: {per100g.gl100.toFixed(1)}</div>
             </div>
           </div>
         </div>
+
+        {/* Micronutrients Accordion */}
+        {Object.keys(microsPer100g).length > 0 && (
+          <Collapsible open={microsOpen} onOpenChange={setMicrosOpen}>
+            <CollapsibleTrigger className="flex items-center justify-between w-full bg-white/10 rounded-lg p-3 text-sm font-semibold">
+              <span>Micronutrients (per 100g)</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${microsOpen ? 'rotate-180' : ''}`} />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">
+              <div className="bg-white/10 rounded-lg p-3">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  {Object.entries(microsPer100g).map(([nutrient, amount]) => (
+                    <div key={nutrient}>
+                      {nutrient}: {amount.toFixed(1)}mg
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
 
         {/* Keto Flags */}
         <div className="space-y-2">
@@ -94,19 +159,6 @@ export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
             </span>
           </div>
         </div>
-
-        {/* Calorie Mismatch Warning */}
-        {calorieMismatch && originalKcal100 && (
-          <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3">
-            <div className="flex items-center gap-2 text-red-300">
-              <AlertTriangle className="w-4 h-4" />
-              <span className="text-sm font-semibold">Calorie Mismatch Detected</span>
-            </div>
-            <p className="text-xs text-red-200 mt-1">
-              Label: {originalKcal100.toFixed(0)} kcal/100g vs Calculated: {per100g.kcal100.toFixed(0)} kcal/100g
-            </p>
-          </div>
-        )}
 
         {/* Keto Formula Display */}
         <div className="bg-white/10 rounded-lg p-3 text-center">

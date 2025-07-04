@@ -31,7 +31,7 @@ export const analyzeNutritionImage = async (imageDataUrl: string): Promise<Nutri
             content: [
               {
                 type: 'text',
-                text: `Analyze this nutrition label image and extract the nutritional information. Also determine the orientation of the nutrition table.
+                text: `Analyze this nutrition label image and extract ALL nutritional information, ingredients, micronutrients, and any front-label claims. Also determine the orientation of the nutrition table.
 
 Return ONLY a JSON object exactly like:
 {
@@ -46,19 +46,34 @@ Return ONLY a JSON object exactly like:
     "carbs": number,
     "fiber": number,
     "sugar": number,
+    "addedSugar": number,           // NEW - added sugars if shown
     "sugarAlcohol": number,
-    "sodium": number
+    "sodium": number,
+    "ingredients": "string",        // NEW - full ingredient list if visible
+    "micros": {                     // NEW - %DV micronutrients if shown
+      "calcium": number,            // %DV values
+      "iron": number,
+      "magnesium": number,
+      "potassium": number,
+      "vitamin d": number,
+      "vitamin b12": number
+    },
+    "claims": ["string"]            // NEW - front label claims like "Keto", "Low GI", "MCT", etc
   },
   "orientation": "upright" | "rotated_90" | "rotated_180" | "rotated_270"
 }
 
-Important notes:
+Important extraction notes:
+- Extract ingredient list from "Ingredients:" section if visible
+- Look for %DV (Daily Value) percentages for micronutrients like Calcium, Iron, Magnesium, Potassium, Vitamin D, Vitamin B12
+- Scan for front-label claims like "Keto", "Low GI", "MCT", "Medium Chain", etc
+- For added sugars, look for "Added Sugars" line in nutrition facts
 - Return ONLY the JSON object, no additional text or markdown formatting
 - Use numbers for all nutritional values (not strings)
-- If a value is not found or unclear, use 0
+- If a value is not found or unclear, use 0 for numbers, empty string for text, empty array for claims
 - Product name and serving size should be strings
 - For orientation: "upright" means readable normally, "rotated_90" means rotated 90° clockwise, "rotated_180" means upside down, "rotated_270" means rotated 90° counter-clockwise
-- Focus on extracting accurate numbers from the label`
+- Focus on extracting accurate numbers from the nutrition label`
               },
               {
                 type: 'image_url',

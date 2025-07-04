@@ -1,0 +1,26 @@
+{
+  "nut-flour bakery": {
+    "gi": 15,
+    "confidence": 0.9
+  },
+  "white-flour bakery": {
+    "gi": 75,
+    "confidence": 0.9
+  },
+  "rice product": {
+    "gi": 73,
+    "confidence": 0.9
+  },
+  "high-GI sweetener": {
+    "gi": 65,
+    "confidence": 0.9
+  },
+  "nut butter / fat bomb": {
+    "gi": 5,
+    "confidence": 0.9
+  },
+  "mixed / unknown": {
+    "gi": 50,
+    "confidence": 0.4
+  }
+}

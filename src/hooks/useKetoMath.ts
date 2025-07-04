@@ -1,6 +1,8 @@
 import { NutritionData } from '@/types/nutrition';
 import saTable from '@/data/sugarAlcohols.json';
 import giTableRaw from '@/data/gi_master.csv?raw';
+import { categorizeFood } from '@/utils/foodCategory';
+import { extractMicronutrients } from '@/utils/micronutrient';
 
 const parseGiTable = (csvRaw: string) => {
   const lines = csvRaw.trim().split('\n').slice(1); // Skip header
@@ -67,16 +69,52 @@ export const useKetoMath = (data: NutritionData) => {
   const passesR = R >= 1;
   const ketoOk = passesNet && passesR;
   
-  // GI lookup
-  const gi = data.gi ?? lookupGi(data.productName);
+  // Enhanced GI lookup with food categorization
+  const foodCategory = categorizeFood(data.ingredients);
+  const gi = data.gi ?? lookupGi(data.productName) ?? foodCategory.giEstimate;
   
+  // GI confidence tracking
+  let giConfidence: string;
+  if (data.gi) {
+    giConfidence = 'direct';
+  } else if (lookupGi(data.productName)) {
+    giConfidence = 'table';
+  } else {
+    giConfidence = `heuristic-${foodCategory.confidence}`;
+  }
+
   const gl100 = gi * netCarb100 / 100;
+
+  // Additional v2 calculations
+  const pctCarb = kcal100 > 0 ? (4 * netCarb100) / kcal100 * 100 : 0;
+  const satRatio = fat100 > 0 ? (data.satFat || 0) * factor100 / fat100 : 0;
+  const sodiumDensity = kcal100 > 0 ? ((data.sodium || 0) * factor100) / kcal100 : 0;
   
+  // Micronutrient density (mg per 100g)
+  const microsPer100g = extractMicronutrients(data.micros);
+  
+  // KetoScore calculation (0-100)
+  const addedSugar100 = (data.addedSugar || 0) * factor100;
+  let ketoScore = 100;
+  ketoScore -= 6 * netCarb100;
+  ketoScore -= 15 * Math.max(0, 1 - R) * 10;
+  if (pctCarb > 10) ketoScore -= 5;
+  if (gl100 > 5) ketoScore -= 10;
+  if (addedSugar100 > 0) ketoScore -= 10;
+  ketoScore = Math.max(0, Math.min(100, ketoScore));
+
   // Calorie mismatch check (if original calories provided)
   const originalKcal100 = data.calories ? (data.calories * factor100) : null;
   const calorieMismatch = originalKcal100 ? 
-    Math.abs(kcal100 - originalKcal100) / originalKcal100 > 0.1 : false;
-  
+    Math.abs(kcal100 - originalKcal100) / originalKcal100 > 0.2 : false;
+
+  // Warning flags
+  const warnings: string[] = [];
+  if (addedSugar100 > 0) warnings.push('High added sugar');
+  if (satRatio > 0.66) warnings.push('High saturated fat ratio');
+  if ((data.sodium || 0) * factor100 > 600) warnings.push('Very high sodium');
+  if (calorieMismatch) warnings.push('Label inconsistency');
+
   return {
     per100g: { 
       fat100, 
@@ -88,7 +126,11 @@ export const useKetoMath = (data: NutritionData) => {
       kcal100, 
       gi, 
       gl100, 
-      R 
+      R,
+      pctCarb,
+      satRatio,
+      sodiumDensity,
+      addedSugar100
     },
     verdict: { 
       ketoOk, 
@@ -96,6 +138,11 @@ export const useKetoMath = (data: NutritionData) => {
       passesR 
     },
     calorieMismatch,
-    originalKcal100
+    originalKcal100,
+    giConfidence,
+    ketoScore,
+    microsPer100g,
+    warnings,
+    foodCategory: foodCategory.category
   };
 };

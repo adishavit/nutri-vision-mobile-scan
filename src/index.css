@@ -94,6 +94,44 @@ All colors MUST be HSL.
   }
 }
 
+/* KetoScore Dial Component */
+.keto-score-dial {
+  --score: 0;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    hsl(var(--destructive)) 0deg,
+    hsl(var(--destructive)) calc(var(--score) * 1.8deg),
+    hsl(var(--muted)) calc(var(--score) * 1.8deg),
+    hsl(var(--muted)) 180deg
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.keto-score-dial::before {
+  content: '';
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: hsl(var(--background) / 0.9);
+}
+
+.keto-score-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--foreground));
+}
+
 @layer base {
   * {
     @apply border-border;

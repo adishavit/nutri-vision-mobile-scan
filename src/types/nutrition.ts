@@ -12,6 +12,10 @@ export interface NutritionData {
   fiber?: number;
   sugar?: number;
   sugarAlcohol?: number;       // NEW
+  addedSugar?: number;         // NEW for v2
   sodium?: number;
   gi?: number;                 // NEW (lookup)
+  ingredients?: string;        // NEW for v2 - ingredient list
+  micros?: Record<string, number>; // NEW for v2 - %DV micronutrients
+  claims?: string[];           // NEW for v2 - front label claims
 }
