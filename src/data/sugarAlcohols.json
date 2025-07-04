@@ -1,0 +1,32 @@
+{
+  "erythritol": {
+    "key": "erythritol",
+    "kcal_per_g": 0.2,
+    "net_carb_factor": 0
+  },
+  "xylitol": {
+    "key": "xylitol",
+    "kcal_per_g": 2.4,
+    "net_carb_factor": 0.5
+  },
+  "sorbitol": {
+    "key": "sorbitol",
+    "kcal_per_g": 2.6,
+    "net_carb_factor": 0.5
+  },
+  "mannitol": {
+    "key": "mannitol",
+    "kcal_per_g": 1.6,
+    "net_carb_factor": 0.5
+  },
+  "maltitol": {
+    "key": "maltitol",
+    "kcal_per_g": 2.1,
+    "net_carb_factor": 0.75
+  },
+  "allulose": {
+    "key": "allulose",
+    "kcal_per_g": 0.4,
+    "net_carb_factor": 0
+  }
+}

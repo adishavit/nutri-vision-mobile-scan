@@ -1,133 +1,128 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { NutritionData } from '@/types/nutrition';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useKetoMath } from '@/hooks/useKetoMath';
+import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 
 interface KetoCalculatorProps {
   nutritionData: NutritionData;
 }
 
 export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
-  const { protein = 0, carbs = 0, fat = 0, fiber = 0 } = nutritionData;
+  const ketoMath = useKetoMath(nutritionData);
   
-  // Calculate net carbs (total carbs - fiber)
-  const netCarbs = Math.max(0, carbs - fiber);
-  
-  // Calculate total macros for percentage calculation
-  const totalMacros = protein + netCarbs + fat;
-  
-  if (totalMacros === 0) {
-    return null;
+  if (!ketoMath) {
+    return (
+      <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-yellow-500" />
+            Keto Analysis Unavailable
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-white/80 text-sm">
+            Serving weight could not be determined from the label. Please take a clearer photo 
+            or manually edit the serving size to include weight (e.g., "30 g" or "2 tbsp (30 mL)").
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
   
-  // Calculate macro percentages
-  const fatPercentage = (fat / totalMacros) * 100;
-  const proteinPercentage = (protein / totalMacros) * 100;
-  const carbPercentage = (netCarbs / totalMacros) * 100;
-  
-  // Determine keto compatibility using the correct formula: 3*(Fat) >= 2*(protein + (carbs - fiber))
-  const getKetoStatus = () => {
-    const ketoFormula = 3 * fat >= 2 * (protein + netCarbs);
-    
-    if (ketoFormula && carbPercentage <= 10) {
-      return { status: 'Keto Friendly', color: 'bg-green-500', icon: TrendingUp };
-    } else if (fatPercentage >= 50 && carbPercentage <= 20) {
-      return { status: 'Low Carb', color: 'bg-yellow-500', icon: Minus };
-    } else {
-      return { status: 'High Carb', color: 'bg-red-500', icon: TrendingDown };
-    }
-  };
-  
-  const ketoStatus = getKetoStatus();
-  const StatusIcon = ketoStatus.icon;
+  const { per100g, verdict, calorieMismatch, originalKcal100 } = ketoMath;
+  const StatusIcon = verdict.ketoOk ? CheckCircle : XCircle;
 
   return (
     <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <StatusIcon className="w-5 h-5" />
+          <StatusIcon className={`w-5 h-5 ${verdict.ketoOk ? 'text-green-500' : 'text-red-500'}`} />
           Keto Analysis
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Keto Status Badge */}
         <div className="flex justify-center">
-          <Badge className={`${ketoStatus.color} text-white px-4 py-2 text-sm font-semibold`}>
-            {ketoStatus.status}
+          <Badge className={`${verdict.ketoOk ? 'bg-green-500' : 'bg-red-500'} text-white px-4 py-2 text-sm font-semibold`}>
+            {verdict.ketoOk ? 'Keto Friendly' : 'Not Keto Friendly'}
           </Badge>
         </div>
 
-        {/* Macro Breakdown */}
+        {/* Per 100g Table */}
         <div className="space-y-3">
-          <h4 className="font-semibold text-center">Macro Breakdown</h4>
+          <h4 className="font-semibold text-center">Per 100g Analysis</h4>
           
-          {/* Fat */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-sm">
-              <span>Fat</span>
-              <span>{fatPercentage.toFixed(1)}%</span>
-            </div>
-            <div className="w-full bg-white/20 rounded-full h-2">
-              <div 
-                className="bg-green-400 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(fatPercentage, 100)}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Protein */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-sm">
-              <span>Protein</span>
-              <span>{proteinPercentage.toFixed(1)}%</span>
-            </div>
-            <div className="w-full bg-white/20 rounded-full h-2">
-              <div 
-                className="bg-blue-400 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(proteinPercentage, 100)}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Net Carbs */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-sm">
-              <span>Net Carbs</span>
-              <span>{carbPercentage.toFixed(1)}%</span>
-            </div>
-            <div className="w-full bg-white/20 rounded-full h-2">
-              <div 
-                className="bg-red-400 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(carbPercentage, 100)}%` }}
-              />
+          <div className="bg-white/10 rounded-lg p-3">
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>Fat: {per100g.fat100.toFixed(1)}g</div>
+              <div>Protein: {per100g.protein100.toFixed(1)}g</div>
+              <div>Carbs: {per100g.carbs100.toFixed(1)}g</div>
+              <div>Fiber: {per100g.fiber100.toFixed(1)}g</div>
+              <div>Net Carbs: {per100g.netCarb100.toFixed(1)}g</div>
+              <div>Calories: {per100g.kcal100.toFixed(0)} kcal</div>
+              {per100g.sa100 > 0 && <div>Sugar Alcohol: {per100g.sa100.toFixed(1)}g</div>}
+              <div>GI: {per100g.gi}</div>
+              <div>GL: {per100g.gl100.toFixed(1)}</div>
             </div>
           </div>
         </div>
 
-        {/* Net Carbs Info */}
-        <div className="bg-white/10 rounded-lg p-3 text-center">
-          <div className="text-lg font-bold">{netCarbs.toFixed(1)}g</div>
-          <div className="text-white/80 text-sm">Net Carbs</div>
-          <div className="text-white/60 text-xs">
-            ({carbs}g total - {fiber}g fiber)
+        {/* Keto Flags */}
+        <div className="space-y-2">
+          <h4 className="font-semibold text-center">Keto Checks</h4>
+          
+          <div className="flex items-center gap-2 text-sm">
+            {verdict.passesNet ? (
+              <CheckCircle className="w-4 h-4 text-green-500" />
+            ) : (
+              <XCircle className="w-4 h-4 text-red-500" />
+            )}
+            <span className={verdict.passesNet ? 'text-green-300' : 'text-red-300'}>
+              Net carbs &lt; 5g/100g ({per100g.netCarb100.toFixed(1)}g)
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2 text-sm">
+            {verdict.passesR ? (
+              <CheckCircle className="w-4 h-4 text-green-500" />
+            ) : (
+              <XCircle className="w-4 h-4 text-red-500" />
+            )}
+            <span className={verdict.passesR ? 'text-green-300' : 'text-red-300'}>
+              Fat dominance R ≥ 1 ({per100g.R.toFixed(2)})
+            </span>
           </div>
         </div>
+
+        {/* Calorie Mismatch Warning */}
+        {calorieMismatch && originalKcal100 && (
+          <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3">
+            <div className="flex items-center gap-2 text-red-300">
+              <AlertTriangle className="w-4 h-4" />
+              <span className="text-sm font-semibold">Calorie Mismatch Detected</span>
+            </div>
+            <p className="text-xs text-red-200 mt-1">
+              Label: {originalKcal100.toFixed(0)} kcal/100g vs Calculated: {per100g.kcal100.toFixed(0)} kcal/100g
+            </p>
+          </div>
+        )}
 
         {/* Keto Formula Display */}
         <div className="bg-white/10 rounded-lg p-3 text-center">
-          <div className="text-white/80 text-xs mb-1">Keto Formula:</div>
+          <div className="text-white/80 text-xs mb-1">Fat Dominance Formula:</div>
           <div className="text-sm font-mono">
-            3×{fat}g ≥ 2×({protein}g + {netCarbs}g)
+            R = 9×{per100g.fat100.toFixed(1)} ÷ 4×({per100g.protein100.toFixed(1)} + {per100g.netCarb100.toFixed(1)})
           </div>
           <div className="text-sm font-mono">
-            {(3 * fat).toFixed(1)} ≥ {(2 * (protein + netCarbs)).toFixed(1)}
+            R = {per100g.R.toFixed(2)}
           </div>
         </div>
 
         {/* Keto Guidelines */}
         <div className="text-xs text-white/70 text-center space-y-1">
-          <p>Keto Guidelines:</p>
-          <p>Fat: 70-80% • Protein: 15-25% • Net Carbs: 5-10%</p>
+          <p>Keto Requirements:</p>
+          <p>Net Carbs &lt; 5g/100g • Fat Dominance R ≥ 1</p>
         </div>
       </CardContent>
     </Card>

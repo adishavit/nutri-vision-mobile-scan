@@ -1,5 +1,6 @@
 
 import { NutritionData } from '@/types/nutrition';
+import { parseServingWeight } from '@/utils/servingParser';
 
 interface AnalysisResult {
   nutritionData: NutritionData;
@@ -32,17 +33,20 @@ export const analyzeNutritionImage = async (imageDataUrl: string): Promise<Nutri
                 type: 'text',
                 text: `Analyze this nutrition label image and extract the nutritional information. Also determine the orientation of the nutrition table.
 
-Return ONLY a JSON object with the following structure:
+Return ONLY a JSON object exactly like:
 {
   "nutritionData": {
     "productName": "string",
-    "servingSize": "string", 
+    "servingSize": "string",        // e.g. "2 tbsp (30 mL)" or "30 g"
     "calories": number,
+    "fat": number,
+    "satFat": number,
+    "transFat": number,
     "protein": number,
     "carbs": number,
-    "fat": number,
     "fiber": number,
     "sugar": number,
+    "sugarAlcohol": number,
     "sodium": number
   },
   "orientation": "upright" | "rotated_90" | "rotated_180" | "rotated_270"
@@ -108,7 +112,11 @@ Important notes:
         console.log('Stored orientation:', analysisResult.orientation);
       }
       
-      return analysisResult.nutritionData || analysisResult as NutritionData;
+      // Parse serving weight
+      const nutritionData = analysisResult.nutritionData || analysisResult as NutritionData;
+      nutritionData.servingWeightG = parseServingWeight(nutritionData.servingSize || '');
+      
+      return nutritionData;
     } catch (parseError) {
       console.error('Failed to parse JSON:', parseError);
       throw new Error('Failed to parse nutrition data from API response');

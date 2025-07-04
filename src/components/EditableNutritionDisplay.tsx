@@ -19,7 +19,7 @@ export const EditableNutritionDisplay = ({ data, image, onDataChange }: Editable
     setEditableData(data);
     // Initialize string values from data
     const newStringValues: Record<string, string> = {};
-    const nutritionFields = ['calories', 'fat', 'sodium', 'carbs', 'sugar', 'fiber', 'protein'];
+    const nutritionFields = ['calories', 'fat', 'satFat', 'transFat', 'sodium', 'carbs', 'sugar', 'sugarAlcohol', 'fiber', 'protein'];
     nutritionFields.forEach(field => {
       const value = data[field as keyof NutritionData];
       newStringValues[field] = value !== undefined ? value.toString() : '';
@@ -45,9 +45,12 @@ export const EditableNutritionDisplay = ({ data, image, onDataChange }: Editable
   const nutritionFields = [
     { key: 'calories', label: 'Calories', unit: 'kcal' },
     { key: 'fat', label: 'Fat', unit: 'g' },
+    { key: 'satFat', label: 'Sat Fat', unit: 'g' },
+    { key: 'transFat', label: 'Trans Fat', unit: 'g' },
     { key: 'sodium', label: 'Sodium', unit: 'mg' },
     { key: 'carbs', label: 'Carbs', unit: 'g' },
     { key: 'sugar', label: 'Sugar', unit: 'g' },
+    { key: 'sugarAlcohol', label: 'Sugar Alcohol', unit: 'g' },
     { key: 'fiber', label: 'Fiber', unit: 'g' },
     { key: 'protein', label: 'Protein', unit: 'g' },
   ];

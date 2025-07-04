@@ -58,11 +58,20 @@ export const useNutritionScanner = () => {
       console.error('Analysis failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       
-      toast({
-        title: "Analysis Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      // Check if it's a serving weight issue
+      if (errorMessage.includes('serving weight') || errorMessage.includes('clearer photo')) {
+        toast({
+          title: "Serving Weight Not Found",
+          description: "Take a clearer photo showing the serving size with weight (e.g., '30 g' or '2 tbsp (30 mL)').",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Analysis Failed",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsAnalyzing(false);
     }
