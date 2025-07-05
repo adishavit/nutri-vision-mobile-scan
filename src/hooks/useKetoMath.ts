@@ -50,7 +50,7 @@ export const useKetoMath = (data: NutritionData) => {
   const fiber100 = (data.fiber || 0) * factor100;
   const sa100 = (data.sugarAlcohol || 0) * factor100;
   
-  // sugar-alcohol factors
+  // sugar-alcohol lookup
   const hit = Object.keys(saTable).find(sa =>
     (data.productName || '').toLowerCase().includes(sa)
   );

@@ -11,29 +11,23 @@ interface KetoCalculatorProps {
 }
 
 export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
-  const ketoMath = useKetoMath(nutritionData);
   const [microsOpen, setMicrosOpen] = useState(false);
   
-  if (!ketoMath) {
+  const km = useKetoMath(nutritionData);
+  if (!km) {
     return (
       <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-yellow-500" />
-            Keto Analysis Unavailable
+            Serving weight not found
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-white/80 text-sm">
-            Serving weight could not be determined from the label. Please take a clearer photo 
-            or manually edit the serving size to include weight (e.g., "30 g" or "2 tbsp (30 mL)").
-          </p>
-        </CardContent>
       </Card>
     );
   }
   
-  const { per100g, verdict, calorieMismatch, originalKcal100, giConfidence, ketoScore, microsPer100g, warnings } = ketoMath;
+  const { per100g, verdict, calorieMismatch, originalKcal100, giConfidence, ketoScore, microsPer100g, warnings } = km;
   const StatusIcon = verdict.ketoOk ? CheckCircle : XCircle;
 
   // GI confidence badge color
