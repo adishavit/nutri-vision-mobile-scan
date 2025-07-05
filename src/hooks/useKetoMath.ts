@@ -20,8 +20,8 @@ const parseGiTable = (csvRaw: string) => {
 
 const giTable = parseGiTable(giTableRaw);
 
-const lookupGi = (productName?: string): number => {
-  if (!productName) return 50; // Default GI
+const lookupGi = (productName?: string): number | null => {
+  if (!productName) return null;
   
   const nameCompare = productName.toLowerCase();
   
@@ -32,7 +32,7 @@ const lookupGi = (productName?: string): number => {
     }
   }
   
-  return 50; // Default GI if no match
+  return null; // No match found
 };
 
 export const useKetoMath = (data: NutritionData) => {
@@ -51,9 +51,10 @@ export const useKetoMath = (data: NutritionData) => {
   const sa100 = (data.sugarAlcohol || 0) * factor100;
   
   // sugar-alcohol factors
-  const saMeta = Object.values(saTable).find(e =>
-    data.sugarAlcohol && (data.productName || '').toLowerCase().includes(e.key)
-  ) || { kcal_per_g: 0, net_carb_factor: 0 };
+  const hit = Object.keys(saTable).find(sa =>
+    (data.productName || '').toLowerCase().includes(sa)
+  );
+  const saMeta = hit ? saTable[hit] : { kcal_per_g: 0, net_carb_factor: 0 };
   
   const netCarb100 = Math.max(0,
     carbs100 - fiber100 - sa100 * saMeta.net_carb_factor);
@@ -77,7 +78,7 @@ export const useKetoMath = (data: NutritionData) => {
   let giConfidence: string;
   if (data.gi) {
     giConfidence = 'direct';
-  } else if (lookupGi(data.productName)) {
+  } else if (lookupGi(data.productName) !== null) {
     giConfidence = 'table';
   } else {
     giConfidence = `heuristic-${foodCategory.confidence}`;

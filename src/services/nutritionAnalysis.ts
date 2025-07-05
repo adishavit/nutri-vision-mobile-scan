@@ -31,49 +31,24 @@ export const analyzeNutritionImage = async (imageDataUrl: string): Promise<Nutri
             content: [
               {
                 type: 'text',
-                text: `Analyze this nutrition label image and extract ALL nutritional information, ingredients, micronutrients, and any front-label claims. Also determine the orientation of the nutrition table.
-
-Return ONLY a JSON object exactly like:
+                text: `Return ONLY a JSON object:
 {
   "nutritionData": {
-    "productName": "string",
-    "servingSize": "string",        // e.g. "2 tbsp (30 mL)" or "30 g"
-    "calories": number,
-    "fat": number,
-    "satFat": number,
-    "transFat": number,
-    "protein": number,
-    "carbs": number,
-    "fiber": number,
-    "sugar": number,
-    "addedSugar": number,           // NEW - added sugars if shown
-    "sugarAlcohol": number,
-    "sodium": number,
-    "ingredients": "string",        // NEW - full ingredient list if visible
-    "micros": {                     // NEW - %DV micronutrients if shown
-      "calcium": number,            // %DV values
-      "iron": number,
-      "magnesium": number,
-      "potassium": number,
-      "vitamin d": number,
-      "vitamin b12": number
-    },
-    "claims": ["string"]            // NEW - front label claims like "Keto", "Low GI", "MCT", etc
+    "productName": "...",
+    "servingSize": "...",           // e.g. "2 tbsp (30 mL)" or "30 g"
+    "calories": 0,
+    "fat": 0,
+    "satFat": 0,
+    "transFat": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fiber": 0,
+    "sugar": 0,
+    "sugarAlcohol": 0,
+    "sodium": 0
   },
   "orientation": "upright" | "rotated_90" | "rotated_180" | "rotated_270"
-}
-
-Important extraction notes:
-- Extract ingredient list from "Ingredients:" section if visible
-- Look for %DV (Daily Value) percentages for micronutrients like Calcium, Iron, Magnesium, Potassium, Vitamin D, Vitamin B12
-- Scan for front-label claims like "Keto", "Low GI", "MCT", "Medium Chain", etc
-- For added sugars, look for "Added Sugars" line in nutrition facts
-- Return ONLY the JSON object, no additional text or markdown formatting
-- Use numbers for all nutritional values (not strings)
-- If a value is not found or unclear, use 0 for numbers, empty string for text, empty array for claims
-- Product name and serving size should be strings
-- For orientation: "upright" means readable normally, "rotated_90" means rotated 90° clockwise, "rotated_180" means upside down, "rotated_270" means rotated 90° counter-clockwise
-- Focus on extracting accurate numbers from the nutrition label`
+}`
               },
               {
                 type: 'image_url',
@@ -130,6 +105,10 @@ Important extraction notes:
       // Parse serving weight
       const nutritionData = analysisResult.nutritionData || analysisResult as NutritionData;
       nutritionData.servingWeightG = parseServingWeight(nutritionData.servingSize || '');
+      
+      if (nutritionData.servingWeightG === null) {
+        throw new Error('Serving weight not found – take clearer photo.');
+      }
       
       return nutritionData;
     } catch (parseError) {
