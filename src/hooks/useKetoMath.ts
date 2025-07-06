@@ -72,17 +72,17 @@ export const useKetoMath = (data: NutritionData) => {
   
   // Enhanced GI lookup with food categorization
   const foodCategory = categorizeFood(data.ingredients);
-  const gi = data.gi ?? lookupGi(data.productName) ?? foodCategory.giEstimate;
+  const giMapHit = lookupGi(data.productName);
+  const gi = data.gi ?? giMapHit ?? foodCategory.giEstimate;
   
   // GI confidence tracking
-  let giConfidence: string;
-  if (data.gi) {
-    giConfidence = 'direct';
-  } else if (lookupGi(data.productName) !== null) {
-    giConfidence = 'table';
-  } else {
-    giConfidence = `heuristic-${foodCategory.confidence}`;
-  }
+  let giConfidence: 'direct' | 'table' | 'heuristic-0.9' | 'heuristic-0.4' | 'default-50';
+  
+  if (data.gi !== undefined) giConfidence = 'direct';
+  else if (giMapHit) giConfidence = 'table';
+  else if (foodCategory.confidence >= 0.8) giConfidence = 'heuristic-0.9';
+  else if (foodCategory.confidence > 0) giConfidence = 'heuristic-0.4';
+  else giConfidence = 'default-50';
 
   const gl100 = gi * netCarb100 / 100;
 

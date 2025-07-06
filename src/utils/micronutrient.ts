@@ -1,5 +1,14 @@
 import fdaDvRaw from '@/data/fda_dv_2024.csv?raw';
 
+export const DV = {
+  calcium:    1300, // mg
+  iron:       18,
+  potassium:  4700,
+  magnesium:  420,
+  vitaminD:   20   // µg
+  // add more if needed
+};
+
 const parseFdaDvTable = (csvRaw: string) => {
   const lines = csvRaw.trim().split('\n').slice(1); // Skip header
   const dvMap: Record<string, number> = {};

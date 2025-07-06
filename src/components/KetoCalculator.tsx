@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { NutritionData } from '@/types/nutrition';
 import { useKetoMath } from '@/hooks/useKetoMath';
@@ -65,6 +66,24 @@ export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
           </Badge>
         </div>
 
+        {/* Carb % and Sat Fat Warnings */}
+        {per100g.pctCarb > 10 && (
+          <Alert className="bg-red-500/20 border-red-500/50 text-red-300">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Carb calories &gt; 10%
+            </AlertDescription>
+          </Alert>
+        )}
+        {per100g.satRatio > 0.66 && (
+          <Alert className="bg-yellow-500/20 border-yellow-500/50 text-yellow-300">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              More than two-thirds of fat is saturated
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Warnings */}
         {warnings.length > 0 && (
           <div className="space-y-1">
@@ -97,8 +116,16 @@ export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
               <div>Sat Fat %: {(per100g.satRatio * 100).toFixed(1)}%</div>
               <div className="flex items-center gap-1">
                 GI: {per100g.gi}
-                <Badge className={`${getGiConfidenceColor(giConfidence)} text-white text-xs px-1 py-0`}>
-                  {giConfidence.replace('heuristic-', 'est ')}
+                <Badge className={`${
+                  giConfidence === 'table' || giConfidence === 'direct'
+                    ? 'bg-green-500'
+                    : giConfidence.startsWith('heuristic')
+                    ? 'bg-amber-500'
+                    : 'bg-gray-500'
+                } text-white text-xs px-1 py-0`}>
+                  {giConfidence === 'direct' ? 'direct' :
+                   giConfidence === 'table' ? 'table' :
+                   giConfidence.startsWith('heuristic') ? 'est' : 'default'}
                 </Badge>
               </div>
               <div>GL: {per100g.gl100.toFixed(1)}</div>

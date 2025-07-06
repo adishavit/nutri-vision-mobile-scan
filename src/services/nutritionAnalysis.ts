@@ -104,6 +104,13 @@ export const analyzeNutritionImage = async (imageDataUrl: string): Promise<Nutri
       
       // Parse serving weight
       const nutritionData = analysisResult.nutritionData || analysisResult as NutritionData;
+      
+      // --- FIX ingredient list possibly returned as array --------------
+      if (Array.isArray(nutritionData.ingredients)) {
+        nutritionData.ingredients = nutritionData.ingredients.join(', ');
+      }
+      // -----------------------------------------------------------------
+      
       nutritionData.servingWeightG = parseServingWeight(nutritionData.servingSize || '');
       
       if (nutritionData.servingWeightG === null) {
