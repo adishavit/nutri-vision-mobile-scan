@@ -17,14 +17,12 @@ export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
   const km = useKetoMath(nutritionData);
   if (!km) {
     return (
-      <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-yellow-500" />
-            Serving weight not found
-          </CardTitle>
-        </CardHeader>
-      </Card>
+      <Alert className="bg-yellow-500/20 border-yellow-500/50 text-yellow-300">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>
+          Serving weight not found
+        </AlertDescription>
+      </Alert>
     );
   }
   
