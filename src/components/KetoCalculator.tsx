@@ -82,6 +82,16 @@ export const KetoCalculator = ({ nutritionData }: KetoCalculatorProps) => {
           </Alert>
         )}
 
+        {/* Sodium density check */}
+        {per100g.sodiumDensity > 2 && (
+          <Alert className="bg-red-500/20 border-red-500/50 text-red-300">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Sodium density {per100g.sodiumDensity.toFixed(1)} mg/kcal &gt; 2 mg/kcal
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Warnings */}
         {warnings.length > 0 && (
           <div className="space-y-1">

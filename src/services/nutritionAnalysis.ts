@@ -1,6 +1,27 @@
 
 import { NutritionData } from '@/types/nutrition';
 import { parseServingWeight } from '@/utils/servingParser';
+import { z } from 'zod';
+
+const NutritionDataSchema = z.object({
+  productName: z.string().optional(),
+  servingSize: z.string().optional(),
+  calories: z.number().optional(),
+  fat: z.number().optional(),
+  satFat: z.number().optional(),
+  transFat: z.number().optional(),
+  protein: z.number().optional(),
+  carbs: z.number().optional(),
+  fiber: z.number().optional(),
+  sugar: z.number().optional(),
+  sugarAlcohol: z.number().optional(),
+  sodium: z.number().optional(),
+  ingredients: z.union([z.string(), z.array(z.string())]).optional(),
+  micros: z.record(z.number()).optional(),
+  gi: z.number().optional(),
+  addedSugar: z.number().optional(),
+  servingWeightG: z.number().nullable().optional()
+});
 
 interface AnalysisResult {
   nutritionData: NutritionData;
@@ -104,6 +125,15 @@ export const analyzeNutritionImage = async (imageDataUrl: string): Promise<Nutri
       
       // Parse serving weight
       const nutritionData = analysisResult.nutritionData || analysisResult as NutritionData;
+      
+      // Validate with Zod schema
+      try {
+        const validatedData = NutritionDataSchema.parse(nutritionData);
+        console.log('Data validation passed');
+      } catch (validationError) {
+        console.warn('Data validation failed:', validationError);
+        // Continue with unvalidated data but log the issue
+      }
       
       // --- FIX ingredient list possibly returned as array --------------
       if (Array.isArray(nutritionData.ingredients)) {

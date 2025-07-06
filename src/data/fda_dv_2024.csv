@@ -1,7 +1,7 @@
-nutrient,dv_mg
-Calcium,1300
-Iron,18
-Magnesium,420
-Potassium,4700
-Vitamin D,20
-Vitamin B12,2.4
+nutrient,dv_value,unit
+Calcium,1300,mg
+Iron,18,mg
+Magnesium,420,mg
+Potassium,4700,mg
+Vitamin D,20,µg
+Vitamin B12,2.4,µg

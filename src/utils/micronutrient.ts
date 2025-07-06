@@ -14,9 +14,10 @@ const parseFdaDvTable = (csvRaw: string) => {
   const dvMap: Record<string, number> = {};
   
   lines.forEach(line => {
-    const [nutrient, dv] = line.split(',');
-    if (nutrient && dv) {
-      dvMap[nutrient.toLowerCase().trim()] = parseFloat(dv.trim());
+    const [nutrient, val, unit] = line.split(',');
+    if (nutrient && val) {
+      const factor = unit?.trim() === 'µg' ? 0.001 : 1;
+      dvMap[nutrient.toLowerCase().trim()] = parseFloat(val.trim()) * factor;
     }
   });
   
